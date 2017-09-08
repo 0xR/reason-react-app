@@ -8,8 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bsb -make-world -w",
     "build": "bsb -make-world",
-    "webpack": "webpack -w",
-    "clean": "bsb -clean-world"
+    "webpack": "webpack -w --env.dev",
+    "clean": "bsb -clean-world",
+    "bundle": "webpack -p --env.bundle"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "bs-platform": "^1.9.1",
-    "webpack": "^1.14.0"
+    "webpack": "^3.5.6",
+    "webpack-bundle-analyzer": "^2.9.0"
   }
 }
