@@ -36,7 +36,10 @@ let make ::name _children => {
       }
     | UpdateValue msg => ReasonReact.Update {...state, value: msg}
     | RemoveTodo id =>
-      ReasonReact.Update {...state, todo: List.filter (fun el => el.id !== id) state.todo}
+      ReasonReact.Update {
+        ...state,
+        todo: List.filter (fun el => el.id !== id) state.todo
+      }
     },
   render: fun self => {
     let todo = self.state.todo;
