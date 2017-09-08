@@ -1,28 +1,36 @@
-type action = Increase | AddTodo | UpdateTodo string;
-type state = {counter: int, todo: list string};
+open ReasonJs.Dom;
 
-let component = ReasonReact.reducerComponent "Greeting";
+type action = AddTodo string | UpdateValue string | RemoveTodo int;
+type todo = {id: int, value: string};
+type state = {todo: list todo, value: string};
+
+let component = ReasonReact.reducerComponent "ReasonML Todos";
+
+let getTargetValue el => switch el {
+| Some e => HtmlElement.value e
+| None => ""
+};
 
 let make ::name _children => {
   {
     ...component,
-    initialState: fun () => {counter: 0, todo: []},
+    initialState: fun () => {todo: [], value: ""},
     reducer: fun action state =>
       switch action {
-      | Increase => ReasonReact.Update {...state, counter: state.counter + 1}
-      | AddTodo => ReasonReact.Update {...state, todo: ["do something", ...state.todo]}
+      | AddTodo msg => ReasonReact.Update {...state, value: "", todo: [{ id: List.length state.todo, value: msg }, ...state.todo]}
+      | UpdateValue msg => ReasonReact.Update {...state, value: msg}
+      | RemoveTodo id => ReasonReact.Update {...state, todo: List.filter (fun el => el.id !== id) state.todo }
       },
     render: fun self => {
-      let count = self.state.counter;
       let todo = self.state.todo;
-      let todoLs = Array.of_list (List.map (fun msg => <li>(ReasonReact.stringToElement msg)</li>) todo);
+      let todoLs = todo |> List.map (fun {id, value} => <li key=(value)> <button onClick=(self.reduce (fun _event => RemoveTodo id))>(ReasonReact.stringToElement "remove")</button> (ReasonReact.stringToElement value)</li>) |> Array.of_list;
 
-      let greeting = {j|Hello $name, You've clicked the button $count times(s)!|j};
       <div>
         <h1> (ReasonReact.stringToElement "What up!") </h1>
-        <button onClick=(self.reduce (fun _event => Increase))> (ReasonReact.stringToElement greeting) </button>
-        <button onClick=(self.reduce (fun _event => AddTodo))> (ReasonReact.stringToElement "Add Todo") </button>
-        <input onChange=(self.reduce (fun event => UpdateTodo "hello world")) placeholder=("Write a todo") />
+        <input value=(self.state.value) onChange=(self.reduce (fun event => UpdateValue (event |> ReactEventRe.Form.target |> Element.asHtmlElement |> getTargetValue))) placeholder=("Write a todo") />
+        <br/>
+        <br/>
+        <button onClick=(self.reduce (fun _event => AddTodo self.state.value))> (ReasonReact.stringToElement "Add Todo") </button>
         <ul>(ReasonReact.arrayToElement todoLs)</ul>
       </div>
     }
